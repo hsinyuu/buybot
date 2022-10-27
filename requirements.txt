@@ -1,0 +1,4 @@
+selenium
+chromedriver-binary==106.0.5249.21
+pydub
+exponent_server_sdk
