@@ -10,6 +10,8 @@ from exponent_server_sdk import (
     PushTicketError,
 )
 from requests.exceptions import ConnectionError, HTTPError
+from pydub import AudioSegment
+from pydub.playback import play
 
 def send_push_message(token, message, extra=None):
     try:
@@ -61,6 +63,7 @@ def check_stock():
         {'name': 'Coffee Bag', 'url': 'https://www.jellycat.com/us/amuseable-coffeetogo-bag-a4cofb/'},
         {'name': 'Toast Bag', 'url': 'https://www.jellycat.com/us/amuseable-toast-bag-a4tb/'},
         {'name': 'Watermelon Bag','url': 'https://www.jellycat.com/us/amuseable-watermelon-bag-a4wb/'},
+        {'name': 'Scallop','url': 'https://www.jellycat.com/us/sensational-seafood-scallop-ssea6sc/'},
     ]
     op = webdriver.ChromeOptions()
     op.add_argument('headless')
@@ -88,6 +91,8 @@ def check_stock():
         print("In stock: %s"%(in_cart))
         print("Out of stock: %s"%(out_of_stock))
         send_push_message(token, "In stock: %s"%(in_cart))
+        alarm = AudioSegment.from_mp3("alarm.mp3")
+        play(alarm)
     else:
         print("do nothing")
 
