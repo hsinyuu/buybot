@@ -13,6 +13,8 @@ from requests.exceptions import ConnectionError, HTTPError
 from pydub import AudioSegment
 from pydub.playback import play
 
+token = "ExponentPushToken[WMAu3XCi75Nf6-cXTadTYW]"
+
 def send_push_message(token, message, extra=None):
     try:
         response = PushClient().publish(
@@ -60,10 +62,10 @@ def send_push_message(token, message, extra=None):
 def check_stock():
     print("Check stock...")
     items = [
-        {'name': 'Coffee Bag', 'url': 'https://www.jellycat.com/us/amuseable-coffeetogo-bag-a4cofb/'},
+        #{'name': 'Coffee Bag', 'url': 'https://www.jellycat.com/us/amuseable-coffeetogo-bag-a4cofb/'},
         {'name': 'Toast Bag', 'url': 'https://www.jellycat.com/us/amuseable-toast-bag-a4tb/'},
         {'name': 'Watermelon Bag','url': 'https://www.jellycat.com/us/amuseable-watermelon-bag-a4wb/'},
-        {'name': 'Scallop','url': 'https://www.jellycat.com/us/sensational-seafood-scallop-ssea6sc/'},
+        #{'name': 'Test', 'url':'https://www.jellycat.com/us/amuseable-sun-a2sun/'}
     ]
     op = webdriver.ChromeOptions()
     op.add_argument('headless')
@@ -72,35 +74,39 @@ def check_stock():
     wd.maximize_window()
     in_cart = list()
     out_of_stock = list()
-    for item in items:
-        name, url = item['name'], item['url']
-        print("Checking item %s, url %s"%(name, url))
-        wd.get(url)
-        buy_button = wd.find_element('xpath', '//*[@id="variant-grid-area"]/div[4]/div[2]/div[11]/form[1]/div[1]/input')
-        if buy_button.is_displayed():
-            #buy_button.click()
-            #continue_shopping_button = wd.find_element('xpath', '//*[@id="addtobasket"]/div/div[4]/a[1]')
-            #continue_shopping_button.click()
-            in_cart.append(name)
-        else:
-            print("%s Out of stock"%(name))
-            out_of_stock.append(name)
-            #cnmjcswd20180709
-    wd.close()
-    if in_cart:
-        print("In stock: %s"%(in_cart))
-        print("Out of stock: %s"%(out_of_stock))
-        send_push_message(token, "In stock: %s"%(in_cart))
-        alarm = AudioSegment.from_mp3("alarm.mp3")
-        play(alarm)
+    try:
+        for item in items:
+            name, url = item['name'], item['url']
+            print("Checking item %s, url %s"%(name, url))
+            wd.get(url)
+            buy_button = wd.find_element('xpath', '//*[@id="variant-grid-area"]/div[4]/div[2]/div[11]/form[1]/div[1]/input')
+            if buy_button.is_displayed():
+                #buy_button.click()
+                #continue_shopping_button = wd.find_element('xpath', '//*[@id="addtobasket"]/div/div[4]/a[1]')
+                #continue_shopping_button.click()
+                in_cart.append(name)
+            else:
+                print("%s Out of stock"%(name))
+                out_of_stock.append(name)
+                #cnmjcswd20180709
+    except Exception as ex:
+        print(ex)
     else:
-        print("do nothing")
+        wd.close()
+        if in_cart:
+            print("In stock: %s"%(in_cart))
+            print("Out of stock: %s"%(out_of_stock))
+            send_push_message(token, "In stock: %s"%(in_cart))
+            alarm = AudioSegment.from_mp3("alarm.mp3")
+            play(alarm)
+        else:
+            print("do nothing")
 
-INTERVAL_IN_SEC = 10*60
+INTERVAL_IN_SEC = 3*60
 while True:
     check_stock()
     print("Check stock in %ss"%(INTERVAL_IN_SEC))
-    time.sleep(20)
+    time.sleep(INTERVAL_IN_SEC)
 
 
 # Checkout
